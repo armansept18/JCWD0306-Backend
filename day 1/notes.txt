@@ -1,0 +1,25 @@
+{
+    "users" : [
+        {
+            "id" : 1,
+            "name" : "udin",
+            "email" : "udin@mail.com",
+            "password" : "password",
+            "age" : 100,
+            "address" : "batam"
+        }
+    ]
+}
+
+localhost:2000/users?email=udin@mail.com&password=password 
+respond =   {
+            "id" : 1,
+            "name" : "udin",
+            "email" : "udin@mail.com",
+            "password" : "password",
+            "age" : 100,
+            "address" : "batam"
+            }
+
+res headers 
+respond 
