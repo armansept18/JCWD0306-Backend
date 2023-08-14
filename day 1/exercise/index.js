@@ -34,6 +34,7 @@ const todos = [
   userid: 2
  }
 ];
+
 app.get('/', (req, res) => {
  res.end('welcome to my api');
 });
@@ -42,15 +43,33 @@ app.get('/', (req, res) => {
 app.get('/users', (req, res) => {
  try {
   let data = [...users];
+
   if (req.query.email) {
    const { email, password } = req.query;
    data = data.filter(
     (user) => user.email === email && user.password === password
    );
+   delete data[0].password;
   }
+
   return res.send({
    message: 'fetch user',
    payload: data
+  });
+ } catch (err) {
+  return res.status(500).send({
+   message: err.message
+  });
+ }
+});
+
+app.patch('/users/:id', (req, res) => {
+ try {
+  const index = users.findIndex((user) => user.id == req.params.id);
+  const currentUser = { ...users[index], ...req.body };
+  return res.send({
+   message: 'user edited',
+   payload: currentUser
   });
  } catch (err) {
   return res.status(500).send({
@@ -75,6 +94,7 @@ app.post('/users', (req, res) => {
    fullname,
    password
   };
+
   users.push(newUser);
   return res.send({
    message: 'new user registered',
@@ -141,7 +161,7 @@ app.post('/todos', (req, res) => {
   const { userid, task, hour } = req.body;
   if (!userid || !task || !hour) throw new Error('userid/task/hour required');
 
-  const newTodo = { id: users[users.length - 1].id + 1, userid, task, hour };
+  const newTodo = { id: todos[todos.length - 1].id + 1, userid, task, hour };
   todos.push(newTodo);
   return res.send({
    message: 'new todo posted',
@@ -162,7 +182,7 @@ app.patch('/todos/:id', (req, res) => {
   const currentTodo = { ...todos[index], ...req.body };
   todos[index] = currentTodo;
   return res.send({
-   message: 'new todo posted',
+   message: 'todo edited',
    payload: currentTodo
   });
  } catch (err) {
