@@ -1,0 +1,19 @@
+{
+ "dependencies": {
+  "cookie-parser": "^1.4.6",
+  "dotenv": "^16.3.1",
+  "express": "^4.18.2",
+  "fs": "^0.0.1-security",
+  "moment": "^2.29.4"
+ },
+ "name": "express-2",
+ "version": "1.0.0",
+ "main": "src/index.js",
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1"
+ },
+ "keywords": [],
+ "author": "",
+ "license": "ISC",
+ "description": ""
+}
