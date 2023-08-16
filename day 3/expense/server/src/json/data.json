@@ -1,0 +1,18 @@
+{
+ "expenses": [
+  {
+   "id": 1,
+   "name": "isi bensin",
+   "nominal": 50000,
+   "category": "transportation",
+   "date": "2023-08-17"
+  },
+  {
+   "id": 2,
+   "name": "pisang goreng keju",
+   "nominal": 40000,
+   "category": "food",
+   "date": "2023-08-1"
+  }
+ ]
+}
