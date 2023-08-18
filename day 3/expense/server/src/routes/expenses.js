@@ -2,8 +2,7 @@ const express = require('express');
 const expensesController = require('../controllers/expenses');
 const route = express.Router();
 route.get('/', expensesController.getAll.bind(expensesController));
-// /expenses/ => method masing2
-
+route.get('/filter', expensesController.getByFilter.bind(expensesController));
 route.get(
  '/date-range',
  expensesController.getTotalExpenseByDates.bind(expensesController)

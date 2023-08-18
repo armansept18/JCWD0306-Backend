@@ -4,8 +4,8 @@ class Entity {
  }
  getAll(req, res) {
   try {
-   if (!this.data.length) throw new Error('no data');
-   res.send(this.data);
+   //    if (!this.data.length) throw new Error('no data');
+   res.send(this.data.length ? this.data : []);
   } catch (err) {
    console.log(err);
    res.send(err.message);
