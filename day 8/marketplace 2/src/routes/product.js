@@ -8,6 +8,8 @@ route.get('/users', productControllers.getAllProductWithUser);
 
 route.get('/:id', productControllers.getById);
 route.post('/', productControllers.createProduct);
+route.post('/user-product', productControllers.createUserAndProduct);
+
 route.patch('/:id', productControllers.editProduct, productControllers.getById);
 route.delete('/:id', productControllers.deleteProduct);
 

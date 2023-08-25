@@ -49,15 +49,14 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 db.Product = require('./product')(sequelize, Sequelize);
 db.User = require('./user')(sequelize, Sequelize);
-
-db.User.hasMany(db.Product, {
- as: 'product',
- foreignKey: 'userid'
-});
-
-db.Product.belongsTo(db.User, {
- as: 'user',
- foreignKey: 'userid'
-});
+db.User.associate(db);
+db.Product.associate(db);
 
 module.exports = db;
+
+// alias akan lebih dipakai kalau dalam 1 model menyimpan 2
+//foreignkey model yg sama
+
+// table follow
+// user_following_id
+// user_followed_id

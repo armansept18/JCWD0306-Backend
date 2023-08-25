@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
    */
   static associate(models) {
    // define association here
-   User.hasMany(models.Product, {
+   this.hasMany(models.Product, {
     as: 'product',
     foreignKey: 'userid'
    });
@@ -17,7 +17,10 @@ module.exports = (sequelize, DataTypes) => {
  }
  User.init(
   {
-   email: DataTypes.STRING,
+   email: {
+    type: DataTypes.STRING,
+    unique: true
+   },
    fullname: DataTypes.STRING,
    password: DataTypes.STRING,
    gender: DataTypes.ENUM('male', 'female'),
@@ -28,5 +31,6 @@ module.exports = (sequelize, DataTypes) => {
    modelName: 'User'
   }
  );
+
  return User;
 };

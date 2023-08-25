@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
    */
   static associate(models) {
    // define association here
-   Product.belongsTo(models.User, {
+   this.belongsTo(models.User, {
     as: 'user',
     foreignKey: 'userid'
    });
@@ -31,5 +31,6 @@ module.exports = (sequelize, DataTypes) => {
    paranoid: true
   }
  );
+
  return Product;
 };

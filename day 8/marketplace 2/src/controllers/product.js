@@ -53,6 +53,26 @@ const productControllers = {
   }) // select * from products api => nodemon => library dependencies => sequelize
    .then((result) => res.send(result))
    .catch((err) => res.status(500).send(err?.message));
+ },
+ async createUserAndProduct(req, res) {
+  try {
+   await db.sequelize.transaction(async (t) => {
+    const newUser = await db.User.create(
+     { ...req.body.user },
+     { transaction: t }
+    );
+    await db.Product.create(
+     { ...req.body.product, userid: newUser.dataValues.id },
+     { transaction: t }
+    );
+    return res.send({ message: 'product dan user berhasil dibuat' });
+   });
+  } catch (err) {
+   console.log(err);
+   res.status(500).send({ message: err?.message });
+  }
  }
 };
 module.exports = productControllers;
+// user,post
+// register,login,
