@@ -1,5 +1,6 @@
 'use strict';
 const { Model } = require('sequelize');
+const { Sequelize } = require('.');
 module.exports = (sequelize, DataTypes) => {
  class User extends Model {
   /**
@@ -55,7 +56,12 @@ module.exports = (sequelize, DataTypes) => {
    uid_google: { type: DataTypes.STRING, unique: true },
    uid_facebook: { type: DataTypes.STRING, unique: true },
    bio: { type: DataTypes.STRING },
-   is_verified: { type: DataTypes.BOOLEAN, defaultValue: false }
+   is_verified: { type: DataTypes.BOOLEAN, defaultValue: false },
+   login_attempt: DataTypes.INTEGER,
+   suspended_date: {
+    type: 'TIMESTAMP',
+    defaultValue: sequelize.fn('NOW')
+   }
   },
   {
    sequelize,
