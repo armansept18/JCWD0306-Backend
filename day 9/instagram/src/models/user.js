@@ -61,7 +61,8 @@ module.exports = (sequelize, DataTypes) => {
    suspended_date: {
     type: 'TIMESTAMP',
     defaultValue: sequelize.fn('NOW')
-   }
+   },
+   image_blob: DataTypes.BLOB("long")
   },
   {
    sequelize,

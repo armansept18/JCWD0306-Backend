@@ -9,7 +9,33 @@ class Post extends Entity {
   const limit = 2;
   const page = req.query.page;
   db.Post.findAll({
-   include: { model: db.User, as: 'user' },
+   include: [
+    {
+     model: db.User,
+     as: 'user',
+     attributes: ['id', 'username', 'image_url']
+    },
+    {
+     model: db.PostLike,
+     as: 'postlikes',
+     include: {
+      model: db.User,
+      as: 'user',
+      attributes: ['id', 'username', 'image_url']
+     },
+
+     order: [['createdAt', 'DESC']]
+    },
+    {
+     model: db.Comment,
+     as: 'comments',
+     include: {
+      model: db.User,
+      as: 'user',
+      attributes: ['id', 'username', 'image_url']
+     }
+    }
+   ],
    order: [['createdAt', 'DESC']],
    offset: (page - 1) * limit,
    limit: limit
@@ -19,7 +45,22 @@ class Post extends Entity {
  }
  getPostsByUserId(req, res) {
   db.Post.findAll({
-   include: { model: db.User, as: 'user' },
+   include: [
+    {
+     model: db.User,
+     as: 'user',
+     attributes: ['id', 'username', 'image_url']
+    },
+    {
+     model: db.PostLike,
+     as: 'postlikes',
+     include: {
+      model: db.User,
+      as: 'user',
+      attributes: ['id', 'username', 'image_url']
+     }
+    }
+   ],
    where: {
     user_id: req.params.userid
    },
@@ -32,7 +73,8 @@ class Post extends Entity {
   db.Post.findAll({
    include: {
     model: db.User,
-    as: 'user'
+    as: 'user',
+    attributes: ['id', 'username', 'image_url']
    },
    where: {
     [db.Sequelize.Op.or]: {

@@ -3,6 +3,10 @@ const Entity = require('./entity');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const sharp = require('sharp');
+const mailer = require('../lib/nodemailer');
+const fs = require('fs');
+const mustache = require('mustache');
 class Auth extends Entity {
  constructor(model) {
   super(model);
@@ -137,6 +141,9 @@ class Auth extends Entity {
     }
    });
 
+   if (req?.file?.filename) req.body.image_url = req.file.filename;
+   else delete req.body.image_url;
+
    if (isUserExist?.dataValues?.id != req.params.id && isUserExist) {
     throw new Error('username sudah terdaftar');
    }
@@ -144,6 +151,105 @@ class Auth extends Entity {
   } catch (err) {
    res.status(500).send(err?.message);
   }
+ }
+ async test(req, res) {
+  console.log(req.file);
+  console.log(req.body);
+  if (req.file) {
+   req.body.image_blob = await sharp(req.file.buffer).png().toBuffer();
+   req.body.image_url = req.file.originalname;
+   db.User.update(req.body, {
+    where: {
+     id: req.body.id
+    }
+   });
+  }
+  res.send('testing');
+ }
+
+ async renderImage(req, res) {
+  const { username, image_name } = req.query;
+  db.User.findOne({
+   where: {
+    username,
+    image_url: image_name
+   }
+  })
+   .then((result) => {
+    res.set('Content-type', 'image/png');
+    res.send(result.dataValues.image_blob);
+   })
+   .catch((err) => {
+    res.status(500).send(err?.message);
+   });
+ }
+ async resendVerification(req, res) {
+  const { id } = req.params;
+  const user = await db.User.findOne({
+   where: {
+    id
+   }
+  });
+  const template = fs
+   .readFileSync(__dirname + '/../template/verify.html')
+   .toString();
+
+  const token = jwt.sign(
+   {
+    id: user.dataValues.id,
+    is_verified: user.dataValues.is_verified
+   },
+   process.env.jwt_secret,
+   {
+    expiresIn: '5min'
+   }
+  );
+  const rendered = mustache.render(template, {
+   username: user.dataValues.username,
+   fullname: user.dataValues.fullname,
+   verify_url: process.env.verified_url + token
+  });
+
+  await mailer({
+   subject: 'User Verification',
+   html: rendered,
+   //  to: 'truecuks19@gmail.com'
+   to: 'jordansumardi@gmail.com'
+   //  to: user.dataValues.email
+  });
+  res.send('verification has been sent');
+ }
+ async verifyUser(req, res) {
+  try {
+   const { token } = req.query;
+   const payload = jwt.verify(token, process.env.jwt_secret);
+
+   if (payload.is_verified) throw new Error('user already verified');
+   await db.User.update(
+    {
+     is_verified: true
+    },
+    {
+     where: {
+      id: payload.id
+     }
+    }
+   );
+   res.send('user has been verified');
+  } catch (err) {
+   res.status(500).send(err?.message);
+  }
+ }
+
+ getByUsername(req, res) {
+  const { username } = req.params;
+  db.User.findOne({
+   where: {
+    username
+   }
+  })
+   .then((result) => res.send(result))
+   .catch((err) => res.status(500).send(err?.message));
  }
 }
 
