@@ -2,7 +2,9 @@ const {
  authRoutes,
  PostRoutes,
  commentRoutes,
- postlikeRoutes
+ postlikeRoutes,
+ followRoutes,
+ messageRoutes
 } = require('./routes');
 require('dotenv').config();
 const express = require('express');
@@ -18,6 +20,8 @@ app.use('/auth', authRoutes);
 app.use('/posts', PostRoutes);
 app.use('/comments', commentRoutes);
 app.use('/postlike', postlikeRoutes);
+app.use('/follows', followRoutes);
+app.use('/messages', messageRoutes);
 
 app.use('/public/avatars', express.static(`${__dirname}/public/images/avatar`));
 

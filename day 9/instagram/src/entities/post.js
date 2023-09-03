@@ -86,6 +86,24 @@ class Post extends Entity {
    .then((result) => res.send(result))
    .catch((err) => res.status(500).send(err?.message));
  }
+ async createPost(req, res) {
+  try {
+   if (req?.file?.filename) req.body.image_url = req.file.filename;
+   else delete req.body.image_url;
+   this.create(req, res);
+  } catch (err) {
+   res.status(500).send(err?.message);
+  }
+ }
+ async editPost(req, res) {
+  try {
+   if (req?.file?.filename) req.body.image_url = req.file.filename;
+   else delete req.body.image_url;
+   this.updateById(req, res);
+  } catch (err) {
+   res.status(500).send(err?.message);
+  }
+ }
 }
 
 module.exports = Post;

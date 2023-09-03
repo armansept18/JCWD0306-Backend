@@ -62,7 +62,8 @@ module.exports = (sequelize, DataTypes) => {
     type: 'TIMESTAMP',
     defaultValue: sequelize.fn('NOW')
    },
-   image_blob: DataTypes.BLOB("long")
+   image_blob: DataTypes.BLOB('long'),
+   forgot_token: { type: DataTypes.STRING, defaultValue: '' }
   },
   {
    sequelize,

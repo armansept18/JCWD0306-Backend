@@ -1,6 +1,7 @@
 const express = require('express');
 const postController = require('../controllers/postController');
 const check_verified = require('../middlewares/auth');
+const { fileUploader } = require('../middlewares/multer');
 const route = express.Router();
 
 route.get('/', postController.getPosts.bind(postController));
@@ -18,8 +19,22 @@ route.delete(
 route.patch(
  '/:id',
  check_verified,
- postController.updateById.bind(postController)
+ fileUploader({
+  destinationFolder: 'post',
+  prefix: 'POST',
+  filetype: 'image'
+ }).single('image'),
+ postController.editPost.bind(postController)
 );
-route.post('/', check_verified, postController.create.bind(postController));
+route.post(
+ '/',
+ check_verified,
+ fileUploader({
+  destinationFolder: 'post',
+  prefix: 'POST',
+  filetype: 'image'
+ }).single('image'),
+ postController.createPost.bind(postController)
+);
 
 module.exports = route;

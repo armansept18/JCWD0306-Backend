@@ -12,8 +12,10 @@ route.get(
  '/username/:username',
  authController.getByUsername.bind(authController)
 );
+route.get('/username2/', authController.getLikeUsername.bind(authController));
 
 route.get('/:id', authController.getById.bind(authController));
+
 route.delete('/:id', authController.deleteById.bind(authController));
 route.patch(
  '/:id',
@@ -43,6 +45,11 @@ route.post(
 route.post(
  '/resend/:id',
  authController.resendVerification.bind(authController)
+);
+route.post('/reset/token', authController.forgotPassword.bind(authController));
+route.post(
+ '/reset/password',
+ authController.resetPassword.bind(authController)
 );
 
 route.post('/verify/token', authController.verifyUser.bind(authController));

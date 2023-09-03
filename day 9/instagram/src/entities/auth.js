@@ -11,7 +11,6 @@ class Auth extends Entity {
  constructor(model) {
   super(model);
  }
-
  login(req, res) {
   const { user, password } = req.body;
   db.User.findOne({
@@ -95,7 +94,38 @@ class Auth extends Entity {
    }
    req.body.password = await bcrypt.hash(req.body.password, 10);
 
-   this.create(req, res);
+   //  this.create(req, res);
+   await db.User.create({ ...req.body }).then((user) => {
+    console.log(user);
+    const template = fs
+     .readFileSync(__dirname + '/../template/verify.html')
+     .toString();
+
+    const token = jwt.sign(
+     {
+      id: user.dataValues.id,
+      is_verified: user.dataValues.is_verified
+     },
+     process.env.jwt_secret,
+     {
+      expiresIn: '5min'
+     }
+    );
+    const rendered = mustache.render(template, {
+     username: user.dataValues.username,
+     fullname: user.dataValues.fullname,
+     verify_url: process.env.verified_url + token
+    });
+
+    mailer({
+     subject: 'User Verification',
+     html: rendered,
+     //  to: 'truecuks19@gmail.com'
+     //  to: 'jordansumardi@gmail.com'
+     to: user.dataValues.email
+    });
+   });
+   res.send('success');
   } catch (err) {
    res.status(500).send(err?.message);
   }
@@ -166,7 +196,6 @@ class Auth extends Entity {
   }
   res.send('testing');
  }
-
  async renderImage(req, res) {
   const { username, image_name } = req.query;
   db.User.findOne({
@@ -214,8 +243,8 @@ class Auth extends Entity {
    subject: 'User Verification',
    html: rendered,
    //  to: 'truecuks19@gmail.com'
-   to: 'jordansumardi@gmail.com'
-   //  to: user.dataValues.email
+   //  to: 'jordansumardi@gmail.com'
+   to: user.dataValues.email
   });
   res.send('verification has been sent');
  }
@@ -240,16 +269,144 @@ class Auth extends Entity {
    res.status(500).send(err?.message);
   }
  }
-
  getByUsername(req, res) {
   const { username } = req.params;
   db.User.findOne({
+   attributes: { exclude: ['password'] },
+   include: [
+    { model: db.Post, as: 'posts' },
+    {
+     model: db.Follow,
+     as: 'followed_users',
+     require: false,
+     include: {
+      model: db.User,
+      as: 'followed_users',
+      attributes: { exclude: ['password'] },
+      where: {
+       username
+      }
+     }
+    },
+    {
+     model: db.Follow,
+     as: 'following_users',
+     require: false,
+     include: {
+      model: db.User,
+      as: 'following_users',
+      attributes: { exclude: ['password'] },
+      where: {
+       username
+      }
+     }
+    }
+   ],
    where: {
     username
    }
   })
    .then((result) => res.send(result))
    .catch((err) => res.status(500).send(err?.message));
+ }
+ getLikeUsername(req, res) {
+  const { username } = req.query;
+  db.User.findAll({
+   where: {
+    username: { [db.Sequelize.Op.like]: `%${username}%` }
+   }
+  })
+   .then((result) => res.send(result))
+   .catch((err) => res.status(500).send(err?.message));
+ }
+ async forgotPassword(req, res) {
+  try {
+   const { email } = req.query;
+   const user = await db.User.findOne({
+    where: {
+     email
+    }
+   });
+   const token = jwt.sign(
+    {
+     email
+    },
+    process.env.jwt_secret,
+    {
+     expiresIn: '2min'
+    }
+   );
+   if (user) {
+    db.User.update(
+     {
+      forgot_token: token
+     },
+     {
+      where: {
+       id: user.dataValues.id
+      }
+     }
+    );
+   } else {
+    throw new Error('user not found');
+   }
+
+   const template = fs
+    .readFileSync(__dirname + '/../template/forgot.html')
+    .toString();
+
+   const rendered = mustache.render(template, {
+    username: user.dataValues.username,
+    fullname: user.dataValues.fullname,
+    forgot_password_url: process.env.reset_url + token
+   });
+
+   mailer({
+    subject: 'RESET PASSWORD',
+    html: rendered,
+    //  to: 'truecuks19@gmail.com'
+    //  to: 'jordansumardi@gmail.com'
+    to: user.dataValues.email
+   });
+
+   res.send('check your email');
+  } catch (err) {
+   res.status(500).send(err?.message);
+  }
+ }
+ async resetPassword(req, res) {
+  try {
+   const { token, password } = req.body;
+   console.log(password);
+   const payload = jwt.verify(token, process.env.jwt_secret);
+   const user = await db.User.findOne({
+    where: {
+     email: payload.email,
+     forgot_token: token
+    }
+   });
+   if (user) {
+    if (!user.dataValues.forgot_token) throw new Error('');
+    const hashedpassword = await bcrypt.hash(password, 10);
+    db.User.update(
+     {
+      forgot_token: '',
+      password: hashedpassword
+     },
+     {
+      where: {
+       id: user.dataValues.id
+      }
+     }
+    );
+   } else {
+    throw new Error('user not found');
+   }
+
+   res.send('success');
+  } catch (err) {
+   res.status(500).send(err?.message);
+  }
  }
 }
 
