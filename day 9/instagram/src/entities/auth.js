@@ -7,6 +7,7 @@ const sharp = require('sharp');
 const mailer = require('../lib/nodemailer');
 const fs = require('fs');
 const mustache = require('mustache');
+
 class Auth extends Entity {
  constructor(model) {
   super(model);
@@ -132,8 +133,7 @@ class Auth extends Entity {
  }
  async keepLogin(req, res) {
   try {
-   const { token } = req.params;
-   console.log(token);
+   const { token } = req;
    const data = jwt.verify(token, process.env.jwt_secret);
    console.log(data);
    if (!data.id) throw new Error('invalid token');

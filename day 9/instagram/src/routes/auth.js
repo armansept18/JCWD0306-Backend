@@ -12,7 +12,9 @@ route.get(
  '/username/:username',
  authController.getByUsername.bind(authController)
 );
-route.get('/username2/', authController.getLikeUsername.bind(authController));
+route.get('/token', authController.keepLogin.bind(authController)); ///keep login
+
+route.get('/username2', authController.getLikeUsername.bind(authController));
 
 route.get('/:id', authController.getById.bind(authController));
 
@@ -33,7 +35,6 @@ route.post(
  authController.register.bind(authController)
 ); //register
 route.post('/v2', authController.login.bind(authController)); //login
-route.get('/token/:token', authController.keepLogin.bind(authController)); ///keep login
 route.post(
  '/test',
  blobUploader({
